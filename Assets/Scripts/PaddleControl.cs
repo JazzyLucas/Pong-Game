@@ -18,15 +18,15 @@ public class PaddleControl : MonoBehaviour
 
     // Internals
     private bool isAI;
-    private float AISpeed = 0.2f;
+    private float AISpeed = 0.1f;
     private float input, previousMouseY, topLimit, bottomLimit, yVelocityRef;
 
     void Start()
     {
         // Initializations
         paddle = this.gameObject;
-        topLimit = topLimitBox.transform.position.y - 1;
-        bottomLimit = bottomLimitBox.transform.position.y + 1;
+        topLimit = topLimitBox.transform.position.y - 2;
+        bottomLimit = bottomLimitBox.transform.position.y + 2;
         previousMouseY = Input.mousePosition.y;
         try
         {
@@ -43,8 +43,12 @@ public class PaddleControl : MonoBehaviour
     {
         if (isAI)
         {
+            if (!GameManager.instance.didPlayerHitBall)
+                return;
             float damp = Mathf.SmoothDamp(paddle.transform.position.y, pongBall.transform.position.y, ref yVelocityRef, AISpeed);
             paddle.transform.position = new Vector3(paddle.transform.position.x, damp, paddle.transform.position.z);
+            float clampedValueAI = Mathf.Clamp(paddle.transform.position.y + input, bottomLimit, topLimit);
+            paddle.transform.position = new Vector3(paddle.transform.position.x, clampedValueAI, paddle.transform.position.z);
             return;
         }
 

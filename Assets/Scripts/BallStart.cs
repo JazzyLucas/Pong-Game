@@ -11,13 +11,19 @@ using UnityEngine;
 public class BallStart : MonoBehaviour
 {
     private Rigidbody ballrb;
-    private float startForce = 5f;
+    private float startForce = 4f;
+    private float gameAcceleration = 0.0015f;
 
     private void Start()
     {
         // Initializations
         ballrb = this.GetComponent<Rigidbody>();
-        LaunchBall();
+    }
+
+    public void ResetBall()
+    {
+        IEnumerator coroutine = SmallDelayToLaunch();
+        StartCoroutine(coroutine);
     }
 
     public void LaunchBall()
@@ -29,20 +35,36 @@ public class BallStart : MonoBehaviour
         switch (ballLaunchRand)
         {
             case 0:
+                GameManager.instance.didPlayerHitBall = false;
                 ballLaunchDirection = Vector3.left + Vector3.up;
                 break;
             case 1:
+                GameManager.instance.didPlayerHitBall = false;
                 ballLaunchDirection = Vector3.left - Vector3.up;
                 break;
             case 2:
+                GameManager.instance.didPlayerHitBall = true;
                 ballLaunchDirection = Vector3.right + Vector3.up;
                 break;
             case 3:
+                GameManager.instance.didPlayerHitBall = true;
                 ballLaunchDirection = Vector3.right - Vector3.up;
                 break;
         }
 
         // Launch the ball
         ballrb.AddForce(ballLaunchDirection * startForce, ForceMode.Impulse);
+    }
+
+    private void FixedUpdate()
+    {
+        ballrb.velocity += ballrb.velocity * gameAcceleration;
+    }
+
+    IEnumerator SmallDelayToLaunch()
+    {
+        ballrb.velocity = Vector3.zero;
+        yield return new WaitForSecondsRealtime(0.5f);
+        LaunchBall();
     }
 }
